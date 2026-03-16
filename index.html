@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexGen Hub - The Ultimate Learning Experience</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22blue%22 font-family=%22Arial%22 font-weight=%22bold%22>N</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root {
+            --bg: #020202;
+            --primary: #8B5CF6;
+            --secondary: #06B6D4;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+        }
+
+        .loader-circle {
+            width: 60px;
+            height: 60px;
+            border: 3px solid transparent;
+            border-top: 3px solid #ec4899;    /* Pink */
+            border-right: 3px solid #8B5CF6;  /* Purple */
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            position: relative;
+        }
+
+        .loader-circle::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border: 3px solid transparent;
+            border-bottom: 3px solid #10b981; /* Green */
+            border-left: 3px solid #3b82f6;   /* Blue */
+            border-radius: 50%;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Aurora Background */
+        .aurora-container {
+            position: fixed;
+            width: 100vw; height: 100vh;
+            top: 0; left: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .aurora-blob {
+            position: absolute;
+            width: 90vw;
+            height: 90vw;
+            filter: blur(140px);
+            opacity: 0.25;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            top: -20%;
+            left: -10%;
+            animation: morph 25s infinite alternate ease-in-out;
+        }
+
+        .aurora-blob.second {
+            background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+            bottom: -20%;
+            right: -10%;
+            top: auto;
+            left: auto;
+            animation: morph 20s infinite alternate-reverse ease-in-out;
+        }
+
+        @keyframes morph {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            50% { transform: translate(15%, 5%) scale(1.1) rotate(60deg); }
+            100% { transform: translate(-5%, 15%) scale(0.9) rotate(-30deg); }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
+
+        .glass-nav {
+            background: rgba(2, 2, 2, 0.4);
+            -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s;
+        }
+        
+        .nav-scrolled {
+            background: rgba(2, 2, 2, 0.8);
+            border-bottom-color: rgba(255, 255, 255, 0.15);
+            padding-top: 4px;
+            margin-bottom: clamp(24px, 5vw, 40px);
+        }
+
+        .hero-title {
+            font-size: clamp(3.5rem, 8vw, 8.5rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            line-height: 0.85;
+            background: linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.3) 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            animation: text-reveal 1.5s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        @keyframes text-reveal {
+            0% { opacity: 0; transform: translateY(50px); filter: blur(10px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: #000;
+            padding: clamp(16px, 2vw, 22px) clamp(30px, 4vw, 50px);
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: clamp(0.9rem, 1vw, 1.1rem);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 20px 50px rgba(139, 92, 246, 0.4);
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: clamp(16px, 2vw, 22px) clamp(30px, 4vw, 50px);
+            border-radius: 100px;
+            font-weight: 800;
+            font-size: clamp(0.9rem, 1vw, 1.1rem);
+            transition: all 0.4s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-container {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 4/5;
+            margin: 0 auto;
+        }
+
+        .image-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            background: rgba(10, 10, 10, 0.8);
+            -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+            transform-origin: center center;
+        }
+
+        .image-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 24px;
+        }
+
+        .image-card.logo-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 30px;
+        }
+
+        .image-card.logo-card img {
+            width: 80%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Custom Elegant Swipe & Swap Animation */
+        @keyframes elegantSwap {
+            0%, 40% {
+                transform: scale(1) translateY(0);
+                z-index: 20;
+                opacity: 1;
+                filter: brightness(1) drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+            }
+            45% {
+                transform: scale(1.05) translateX(40px) translateY(-30px) rotate(8deg);
+                z-index: 20;
+                opacity: 0;
+                filter: brightness(1.2);
+            }
+            46.9% { z-index: 20; }
+            47% {
+                transform: scale(0.85) translateX(-40px) translateY(20px) rotate(-4deg);
+                z-index: 10;
+                opacity: 0;
+                filter: brightness(0.3);
+            }
+            50% {
+                transform: scale(0.95) translateX(-25px) rotate(-3deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.5);
+            }
+            70% {
+                transform: scale(0.95) translateX(-35px) rotate(-5deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.6);
+            }
+            90% {
+                transform: scale(0.95) translateX(-25px) rotate(-3deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.5);
+            }
+            95% {
+                transform: scale(0.98) translateX(-10px) rotate(-1deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.8);
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                z-index: 20;
+                opacity: 1;
+                filter: brightness(1) drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+            }
+        }
+        
+        /* Opposite elegant swap for About section */
+        @keyframes elegantSwapLeft {
+            0%, 40% {
+                transform: scale(1) translateY(0);
+                z-index: 20;
+                opacity: 1;
+                filter: brightness(1) drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+            }
+            45% {
+                transform: scale(1.05) translateX(-40px) translateY(-30px) rotate(-8deg);
+                z-index: 20;
+                opacity: 0;
+                filter: brightness(1.2);
+            }
+            46.9% { z-index: 20; }
+            47% {
+                transform: scale(0.85) translateX(20px) translateY(20px) rotate(4deg);
+                z-index: 10;
+                opacity: 0;
+                filter: brightness(0.3);
+            }
+            50% {
+                transform: scale(0.95) translateX(-25px) rotate(-3deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.5);
+            }
+            70% {
+                transform: scale(0.95) translateX(-35px) rotate(-5deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.6);
+            }
+            90% {
+                transform: scale(0.95) translateX(-25px) rotate(-3deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.5);
+            }
+            95% {
+                transform: scale(0.98) translateX(-10px) rotate(-1deg);
+                z-index: 10;
+                opacity: 1;
+                filter: brightness(0.8);
+            }
+            100% {
+                transform: scale(1) translateY(0);
+                z-index: 20;
+                opacity: 1;
+                filter: brightness(1) drop-shadow(0 20px 40px rgba(0,0,0,0.5));
+            }
+        }
+
+        .card-front {
+            animation: elegantSwap 8s infinite cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        .card-back {
+            animation: elegantSwap 8s infinite cubic-bezier(0.25, 1, 0.5, 1);
+            animation-delay: -4s;
+        }
+        
+        .card-front-left {
+            animation: elegantSwapLeft 8s infinite cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        .card-back-left {
+            animation: elegantSwapLeft 8s infinite cubic-bezier(0.25, 1, 0.5, 1);
+            animation-delay: -4s;
+        }
+
+        .floating-label {
+            position: absolute;
+            background: rgba(10, 10, 10, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            border-radius: 100px;
+            padding: 10px 24px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            z-index: 30;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .label-purple { color: #8B5CF6; border-color: rgba(139, 92, 246, 0.4); box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }
+        .label-cyan { color: #06B6D4; border-color: rgba(6, 182, 212, 0.4); box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+
+        .company-logo {
+            width: 80px; height: 80px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .company-logo img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+
+        /* Sidebar Elements */
+        .scroll-indicator {
+            position: fixed; right: 40px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 14px; z-index: 50;
+        }
+        .scroll-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.15); transition: all 0.3s;
+            cursor: pointer;
+        }
+        .scroll-dot:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        .scroll-dot.active {
+            background: var(--primary);
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+            transform: scale(1.3);
+        }
+        .vert-text {
+            writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+            position: fixed; left: 30px; top: 50%; margin-top: -30px; z-index: 50;
+            letter-spacing: 6px; font-size: 0.70rem; font-weight: 800; color: var(--primary); opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <!-- Preloader -->
+    <div id="preloader">
+      <div class="loader-circle"></div>
+    </div>
+
+    <!-- Ambient / Aurora Background -->
+    <div class="aurora-container">
+        <div class="aurora-blob"></div>
+        <div class="aurora-blob second"></div>
+    </div>
+
+    <!-- Vertical text left -->
+    <div class="vert-text hidden xl:block uppercase">NexGen</div>
+
+    <!-- Scroll Dots right -->
+    <div class="scroll-indicator hidden xl:flex" id="scrollIndicator">
+        <a href="#hero" class="scroll-dot active" title="Hero"></a>
+        <a href="#about" class="scroll-dot" title="About"></a>
+        <a href="#pillars" class="scroll-dot" title="Pillars"></a>
+        <a href="#community" class="scroll-dot" title="Community"></a>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav fixed w-full z-50 top-0">
+        <div class="max-w-[1500px] mx-auto px-6 lg:px-16 py-6 flex justify-between items-center h-24">
+            <div class="flex flex-col cursor-pointer select-none" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="text-3xl font-black tracking-tighter uppercase text-white leading-none">
+                    NexGen<span class="opacity-40">Hub</span>
+                </div>
+                <div class="text-[10px] opacity-40 tracking-widest font-extrabold translate-x-1 mt-1">
+                    x HAZA
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-6">
+                <!-- User State will be injected here if logged in -->
+                <div id="userStateArea">
+                    <button onclick="handleLoginClick()" class="bg-white text-black px-8 py-3.5 rounded-full font-black text-xs hover:scale-105 transition active:scale-95 shadow-[0_10px_30px_rgba(255,255,255,0.1)] uppercase tracking-widest flex items-center gap-2">
+                        LOGIN TO PORTAL <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="hero" class="relative min-h-[90vh] flex items-center pt-24 pb-12 overflow-hidden mx-auto max-w-[1700px]">
+        
+        <!-- Grid Layout -->
+        <div class="relative z-10 w-full px-6 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center mt-8">
+            
+            <!-- Left Side: Text Content -->
+            <div class="lg:col-span-7 flex flex-col items-start xl:pr-14" data-aos="fade-up">
+                
+                <!-- Pill -->
+                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/5 text-white/50 text-xs font-bold tracking-widest mb-10 uppercase !backdrop-blur-md" style="-webkit-backdrop-filter: blur(12px);">
+                    <span class="w-2 h-2 rounded-full bg-primary" style="box-shadow: 0 0 10px rgba(139,92,246,0.8)"></span>
+                    A Powerful LMS By NEXGEN SOLUTIONS + HAZA
+                </div>
+
+                <!-- Heading -->
+                <h1 class="hero-title mb-8 leading-[0.9]">
+                    ELEVATE <br>
+                    YOUR CRAFT.
+                </h1>
+
+                <!-- Description -->
+                <p class="text-lg md:text-2xl text-white/40 mb-12 max-w-2xl leading-relaxed font-medium">
+                    The curated repository for modern development and creative assets. <span class="text-white">Built for those who build the future.</span>
+                </p>
+
+                <!-- Company Logos -->
+                <div class="flex items-center gap-6 mb-12">
+                    <div class="flex gap-4">
+                        <div class="company-logo" title="HAZA">
+                            <img src="assets/logo1.png" alt="HAZA Logo" onerror="this.outerHTML='<i class=\'fa-solid fa-building text-3xl text-primary\'></i>'">
+                        </div>
+                        <div class="company-logo" title="NEXGEN Solutions">
+                            <img src="assets/logo2.png" alt="NEXGEN Logo" onerror="this.outerHTML='<i class=\'fa-solid fa-globe text-3xl text-cyan-400\'></i>'">
+                        </div>
+                    </div>
+                    <div class="h-12 w-px bg-white/10 mx-2"></div>
+                    <div class="text-xs font-bold uppercase tracking-widest text-white/30 max-w-[150px] leading-tight">
+                        Powering the NexGen ecosystem
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex flex-col sm:flex-row gap-5 mb-10 w-full sm:w-auto">
+                    <button onclick="handleLoginClick()" class="btn-primary">
+                        EXPLORE HUB <i class="fa-solid fa-arrow-right-long opacity-70"></i>
+                    </button>
+                    <!-- Small Stats inline -->
+                    <div class="hidden sm:flex items-center gap-6 ml-6 pl-6 border-l border-white/10">
+                        <div>
+                            <div class="text-2xl font-black text-white">1K+</div>
+                            <div class="text-[0.65rem] uppercase tracking-widest text-white/40 font-bold">Students</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-black text-white">100+</div>
+                            <div class="text-[0.65rem] uppercase tracking-widest text-white/40 font-bold">Assets</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Side: Image Cards -->
+            <div class="lg:col-span-5 w-full flex justify-center items-center h-[500px] lg:h-auto py-10 lg:py-0 relative" data-aos="fade-left" data-aos-delay="200">
+                
+                <div class="card-container">
+                    
+                    <!-- Back Card (animates dynamically to swap) -->
+                    <div class="image-card card-back p-1">
+                        <div class="w-full h-full rounded-[20px] overflow-hidden border border-white/5 relative bg-zinc-900">
+                            <img src="assets/me - Copy.png" alt="Collaborator 2" onerror="this.src='https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=600&auto=format&fit=crop'">
+                            <!-- Inner Gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-cyan-900/60 to-transparent pointer-events-none rounded-[20px]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Front Card (animates dynamically to swap) -->
+                    <div class="image-card card-front p-1">
+                         <div class="w-full h-full rounded-[20px] overflow-hidden border border-white/5 relative bg-zinc-900">
+                            <img src="assets/me.png" alt="Collaborator 1" onerror="this.src='https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=600&auto=format&fit=crop'">
+                            <!-- Inner Gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-violet-900/60 to-transparent pointer-events-none rounded-[20px]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Top Floating Label -->
+                    <div class="floating-label label-purple top-12 -right-6 lg:-right-12 hidden sm:block">
+                        Innovation Lead
+                    </div>
+
+                    <!-- Bottom Floating Label -->
+                    <div class="floating-label label-cyan bottom-12 -left-6 lg:-left-12 hidden sm:block">
+                        Digital Architect
+                    </div>
+                    
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Scroll Text Bottom Removed -->
+
+    </main>
+    
+    <!-- What is This Section -->
+    <section id="about" class="scroll-section max-w-[1500px] mx-auto px-6 lg:px-16 py-32 relative z-10 border-t border-white/5 min-h-[80vh] flex items-center" data-aos="fade-up">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
+            
+            <!-- Left Side: Flipping Logo Cards -->
+            <div class="w-full flex justify-center items-center py-20 relative order-2 lg:order-1">
+                <div class="card-container !max-w-[350px]">
+                    <!-- Back Card -->
+                    <div class="image-card logo-card card-back-left">
+                        <img src="assets/logo2.png" alt="NEXGEN Solutions">
+                    </div>
+                    <!-- Front Card -->
+                    <div class="image-card logo-card card-front-left">
+                        <img src="assets/logo1.png" alt="HAZA">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Text -->
+            <div class="flex flex-col items-start order-1 lg:order-2">
+                <div class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/5 text-white/50 text-xs font-bold tracking-widest mb-6 uppercase !backdrop-blur-md" style="-webkit-backdrop-filter: blur(12px);">
+                    <i class="fa-solid fa-bolt text-cyan-400"></i>
+                    The Partnership
+                </div>
+                
+                <h2 class="text-4xl lg:text-5xl xl:text-7xl font-black uppercase tracking-tight mb-8">What Is <br><span class="text-primary">This?</span></h2>
+                
+                <p class="text-lg lg:text-xl text-white/60 leading-relaxed font-medium mb-8">
+                    This learning program is a strategic collaboration between <span class="text-white font-bold">HAZA</span> and <span class="text-white font-bold">NEXGEN Solutions</span>, two forward-thinking tech firms dedicated to building high-performance digital solutions. 
+                </p>
+                
+                <p class="text-lg lg:text-xl text-white/60 leading-relaxed font-medium mb-8">
+                    By combining our expertise in web development, mobile applications, and desktop software, we have created a curriculum that moves beyond theory. 
+                </p>
+                
+                <p class="text-lg lg:text-xl text-white/60 leading-relaxed font-medium">
+                    Our sessions are designed to provide aspiring developers with the practical, industry-standard skills required to excel in today's competitive tech landscape.
+                </p>
+            </div>
+            
+        </div>
+    </section>
+
+    <!-- Additional Content Sections to make page longer -->
+    <section id="pillars" class="scroll-section max-w-[1500px] mx-auto px-6 lg:px-16 py-32 relative z-10 border-t border-white/5" data-aos="fade-up">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl lg:text-5xl font-black uppercase tracking-tight mb-4">Our Core <span class="text-cyan-400">Pillars</span></h2>
+            <p class="text-white/40 max-w-2xl mx-auto">Discover the foundational elements that drive our collaborative educational and structural hub forward.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white/5 border border-white/10 p-10 rounded-3xl hover:bg-white/10 transition-colors" style="-webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);">
+                <i class="fa-solid fa-code text-4xl text-primary mb-6"></i>
+                <h3 class="text-2xl font-bold mb-4">Advanced Development</h3>
+                <p class="text-white/40 leading-relaxed text-sm">Industry-standard systems architecture, web solutions, and software engineering practices refined for the next generation.</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 p-10 rounded-3xl hover:bg-white/10 transition-colors" style="-webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);">
+                <i class="fa-solid fa-paintbrush text-4xl text-cyan-400 mb-6"></i>
+                <h3 class="text-2xl font-bold mb-4">Creative Design</h3>
+                <p class="text-white/40 leading-relaxed text-sm">Visually stunning aesthetics combined with highly functional UI/UX paradigms to build truly exceptional digital products.</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 p-10 rounded-3xl hover:bg-white/10 transition-colors" style="-webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);">
+                <i class="fa-solid fa-microchip text-4xl text-purple-400 mb-6"></i>
+                <h3 class="text-2xl font-bold mb-4">AI Integration</h3>
+                <p class="text-white/40 leading-relaxed text-sm">Empowering applications with the latest artificial intelligence models to automate, scale, and revolutionize daily tasks.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="community" class="scroll-section max-w-[1500px] mx-auto px-6 lg:px-16 py-32 relative z-10 border-t border-white/5" data-aos="fade-up">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <div class="lg:w-1/2">
+                <div class="aspect-square max-w-lg mx-auto rounded-full bg-gradient-to-tr from-primary/20 to-cyan-400/20 border-2 border-white/10 flex items-center justify-center p-10 relative">
+                    <div class="absolute inset-0 border-t-2 border-primary rounded-full animate-spin" style="animation-duration: 10s;"></div>
+                    <div class="absolute inset-[-20px] border-b-2 border-cyan-400 rounded-full animate-spin" style="animation-duration: 15s; animation-direction: reverse;"></div>
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop" class="rounded-full w-full h-full object-cover grayscale opacity-80" alt="Team">
+                </div>
+            </div>
+            <div class="lg:w-1/2">
+                <h2 class="text-4xl lg:text-5xl font-black uppercase tracking-tight mb-8 leading-tight">Empowering<br>The <span class="text-primary">Community</span></h2>
+                <p class="text-lg text-white/40 mb-8 leading-relaxed">
+                    By merging technical aptitude with creative brilliance, NexGen Hub continues to expand its boundaries. We've equipped thousands of students, developers, and designers with the ultimate toolkit to succeed in the fast-paced modern world.
+                </p>
+                <ul class="space-y-4 font-bold text-white/80 mb-10">
+                    <li class="flex items-center gap-4"><i class="fa-solid fa-circle-check text-cyan-400"></i> Seamless modern curriculum</li>
+                    <li class="flex items-center gap-4"><i class="fa-solid fa-circle-check text-cyan-400"></i> Lifetime access to premium assets</li>
+                    <li class="flex items-center gap-4"><i class="fa-solid fa-circle-check text-cyan-400"></i> Direct mentorship from industry leads</li>
+                </ul>
+                <button onclick="handleLoginClick()" class="btn-secondary">
+                    Join The Community
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black/80 border-t border-white/10 relative z-20 py-12 mt-20" style="-webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px);">
+        <div class="max-w-[1500px] mx-auto px-6 lg:px-16 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex flex-col cursor-pointer select-none" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <div class="font-black text-2xl tracking-tighter uppercase leading-none">
+                    NexGen<span class="opacity-40">Hub</span>
+                </div>
+                <div class="text-[9px] opacity-40 tracking-widest font-extrabold translate-x-1 mt-1">
+                    x HAZA
+                </div>
+            </div>
+            <div class="text-white/40 text-sm font-bold uppercase tracking-widest text-center">
+                © 2026 NexGen x HAZA. All Rights Reserved.
+            </div>
+            <div class="flex gap-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition"><i class="fa-brands fa-twitter text-white"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition"><i class="fa-brands fa-github text-white"></i></a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition"><i class="fa-brands fa-discord text-white"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        // Preloader cleanup
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('preloader');
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.visibility = 'hidden';
+            }, 800);
+        });
+
+        AOS.init({ duration: 1000, once: true, easing: 'ease-out-cubic' });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.glass-nav');
+            if (window.scrollY > 50) {
+                nav.classList.add('nav-scrolled');
+            } else {
+                nav.classList.remove('nav-scrolled');
+            }
+        });
+        
+        // Scroll Indicator Dots Observer
+        const sections = document.querySelectorAll('.scroll-section');
+        const navDots = document.querySelectorAll('.scroll-dot');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navDots.forEach(dot => {
+                        dot.classList.remove('active');
+                        dot.style.background = 'rgba(255,255,255,0.15)';
+                        dot.style.boxShadow = 'none';
+                        if (dot.getAttribute('href') === `#${id}`) {
+                            dot.classList.add('active');
+                            dot.style.background = 'var(--primary)';
+                            dot.style.boxShadow = '0 0 12px rgba(139, 92, 246, 0.6)';
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(sec => observer.observe(sec));
+
+        // Firebase Auth Init
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeJeCETSpLC98UT2rHe4Wr-HJ3poVxi3Y",
+            authDomain: "nexgenlms-51425.firebaseapp.com",
+            projectId: "nexgenlms-51425"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                // Update UI for logged-in user
+                const initial = user.displayName ? user.displayName.charAt(0).toUpperCase() : "U";
+                const name = user.displayName || "Learner";
+                
+                document.getElementById('userStateArea').innerHTML = `
+                    <div class="flex items-center gap-6 bg-white/5 pl-2 pr-6 py-2 rounded-full border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center font-black text-black overflow-hidden border border-white/10">
+                            ${user.photoURL ? `<img src="${user.photoURL}" class="w-full h-full object-cover">` : initial}
+                        </div>
+                        <div class="flex flex-col mr-2">
+                            <span class="text-[10px] font-black uppercase tracking-tight">${name}</span>
+                            <span class="text-[8px] font-bold text-white/40 uppercase tracking-widest">PRO ACCESS</span>
+                        </div>
+                        <button id="logoutBtn" class="text-white/20 hover:text-white transition px-2" title="Logout"><i class="fa-solid fa-power-off"></i></button>
+                    </div>
+                `;
+
+                document.getElementById("logoutBtn").onclick = (e) => {
+                    e.stopPropagation();
+                    signOut(auth).then(() => window.location.reload());
+                };
+
+                // Add click event to area to redirect to sessions
+                document.getElementById('userStateArea').onclick = () => {
+                    window.location.href = user.email === 'admin@gmail.com' ? 'admin.html' : 'sessions.html';
+                };
+            } else {
+                currentUser = null;
+            }
+        });
+
+        // Expose function for button click
+        window.handleLoginClick = () => {
+             // If they click the "Explore Hub" or "Login To Portal" explicitly
+             if (currentUser) {
+                 // They are logged in! Show an authenticating message before redirecting
+                 Swal.fire({
+                    title: 'Retrieving Session...',
+                    background: '#0f172a',
+                    color: '#fff',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                 });
+                 setTimeout(() => {
+                    window.location.href = currentUser.email === 'admin@gmail.com' ? 'admin.html' : 'sessions.html';
+                 }, 800);
+             } else {
+                 // Forward to login page
+                 window.location.href = 'login.html';
+             }
+        };
+
+    </script>
+</body>
+</html>

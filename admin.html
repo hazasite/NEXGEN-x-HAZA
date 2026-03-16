@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexGen Admin Hub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22blue%22 font-family=%22Arial%22 font-weight=%22bold%22>N</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style> 
+        :root {
+            --bg: #020202;
+            --surface: #0a0a0a;
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #8B5CF6;
+        }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg); 
+            color: white;
+        }
+        input, select, textarea {
+            background: #0f0f0f !important;
+            border-color: var(--border) !important;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center">
+
+    <div id="loginSection" class="w-full max-w-md glass-card rounded-3xl shadow-2xl p-10 transform transition-all">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-black text-white tracking-tighter uppercase">NEXGEN<span class="text-primary">ADMIN</span></h1>
+            <p class="text-white/40 text-xs font-bold uppercase tracking-widest mt-3">Identity Verified Access</p>
+        </div>
+        <div class="space-y-6">
+            <div>
+                <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Admin Email</label>
+                <input type="email" id="adminEmail" class="w-full px-5 py-4 border rounded-xl outline-none focus:ring-2 focus:ring-primary transition" placeholder="admin@gmail.com">
+            </div>
+            <div>
+                <label class="block text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">Password</label>
+                <input type="password" id="adminPassword" class="w-full px-5 py-4 border rounded-xl outline-none focus:ring-2 focus:ring-primary transition" placeholder="••••••••">
+            </div>
+            <button id="loginBtn" class="w-full bg-primary hover:bg-violet-500 text-white font-black py-4 rounded-xl shadow-lg transition uppercase tracking-widest text-xs">Authorize Login</button>
+        </div>
+    </div>
+
+    <div id="adminDashboard" class="hidden w-full h-full flex flex-col md:flex-row bg-[#020202]">
+        <div class="w-full md:w-72 bg-[#050505] border-r border-white/5 flex flex-col p-6">
+            <h2 class="text-2xl font-black mb-10 px-2 tracking-tighter uppercase italic">NEXGEN<span class="text-primary">HUB</span></h2>
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center gap-3 bg-white/5 border border-white/10 px-5 py-4 rounded-xl text-sm font-bold transition hover:bg-white/10"><i class="fa-solid fa-plus-circle text-primary"></i> PUBLISH CONTENT</a>
+                <a href="#manageContentSec" class="flex items-center gap-3 text-white/40 hover:text-white px-5 py-4 rounded-xl text-sm font-bold transition hover:bg-white/5"><i class="fa-solid fa-list"></i> MANAGEMENT</a>
+            </nav>
+            <button id="adminLogoutBtn" class="mt-auto bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white px-5 py-4 rounded-xl flex items-center justify-center gap-2 text-xs font-black transition"><i class="fa-solid fa-power-off"></i> LOGOUT HUB</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-10">
+            <div class="max-w-5xl mx-auto space-y-10">
+                <div class="glass-card rounded-[32px] p-10">
+                    <h3 id="formTitle" class="text-2xl font-black text-white mb-10 border-b border-white/5 pb-6 uppercase tracking-tight"><i class="fa-solid fa-bolt text-primary mr-3"></i>Publish Intelligence</h3>
+                    <input type="hidden" id="editDocId">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="col-span-2">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 block">Content Title</label>
+                            <input type="text" id="cTitle" class="w-full p-4 border rounded-xl text-sm font-medium">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 block">Deep Description</label>
+                            <textarea id="cDesc" rows="4" class="w-full p-4 border rounded-xl text-sm font-medium"></textarea>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 block">System Classification</label>
+                            <select id="cCategory" class="w-full p-4 border rounded-xl bg-gray-50 outline-none focus:ring-2 focus:ring-primary text-sm font-bold">
+                                <option value="Programming">Programming</option>
+                                <option value="Graphics">Graphics</option>
+                                <option value="AI">AI & Data</option>
+                                <option value="Assets">Assets</option>
+                                <option value="Networking">Networking</option>
+                                <option value="Courses">Full Courses</option>
+                                <option value="Tutorials">Tutorials</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 block">Valuation (Free/LKR)</label>
+                            <input type="text" id="cPrice" class="w-full p-4 border rounded-xl text-sm font-bold" placeholder="e.g. 5000">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 block">Visual Identity (Image URL)</label>
+                            <input type="text" id="cImage" class="w-full p-4 border rounded-xl text-sm font-medium" placeholder="Full Link to thumbnail">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 block">Direct Access Link</label>
+                            <input type="text" id="cLink" class="w-full p-4 border rounded-xl text-sm font-medium" placeholder="Full Download or Video Link">
+                        </div>
+                    </div>
+                    <div class="flex gap-4 mt-10">
+                        <button id="addContentBtn" class="bg-white text-black hover:bg-primary hover:text-white px-10 py-5 rounded-2xl shadow-xl w-full transition font-black uppercase tracking-widest text-xs">Commit to Repository</button>
+                        <button id="cancelEditBtn" class="hidden bg-white/5 hover:bg-white/10 text-white px-10 py-5 rounded-2xl shadow-sm w-full transition font-black border border-white/10 uppercase tracking-widest text-xs">Abort Operation</button>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-[32px] p-10">
+                    <h3 class="text-xl font-black text-white mb-6 border-b border-white/5 pb-6 uppercase tracking-tight"><i class="fa-solid fa-key text-green-500 mr-3"></i>Access Key Extraction</h3>
+                    <div class="flex gap-4">
+                        <input type="text" id="rContentId" class="w-full p-4 border rounded-xl text-sm font-mono" placeholder="Target Content ID">
+                        <button id="generateCodeBtn" class="bg-primary text-white px-10 rounded-2xl font-black uppercase text-[10px] tracking-widest">Generate Key</button>
+                    </div>
+                </div>
+
+                <div id="manageContentSec" class="glass-card rounded-[32px] p-10">
+                    <h3 class="text-xl font-black text-white mb-8 border-b border-white/5 pb-6 uppercase tracking-tight"><i class="fa-solid fa-database text-indigo-500 mr-3"></i>Active Repository</h3>
+                    <div id="contentList" class="grid gap-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCeJeCETSpLC98UT2rHe4Wr-HJ3poVxi3Y",
+    authDomain: "nexgenlms-51425.firebaseapp.com",
+    projectId: "nexgenlms-51425"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  let allContent = [];
+
+  // Check if Admin is already logged in
+  onAuthStateChanged(auth, (user) => {
+      if (user && user.email === 'admin@gmail.com') {
+          showDashboard();
+      }
+  });
+
+  document.getElementById('loginBtn').addEventListener('click', () => {
+      const email = document.getElementById('adminEmail').value;
+      const pass = document.getElementById('adminPassword').value;
+      
+      Swal.fire({ title: 'Authenticating...', didOpen: () => Swal.showLoading() });
+      
+      signInWithEmailAndPassword(auth, email, pass)
+          .then((userCredential) => {
+              if(userCredential.user.email === 'admin@gmail.com') {
+                  Swal.fire({ icon: 'success', title: 'Welcome Admin!', timer: 1000, showConfirmButton: false });
+                  showDashboard();
+              } else {
+                  Swal.fire('Error', 'Unauthorized Access!', 'error');
+                  signOut(auth);
+              }
+          })
+          .catch((error) => { Swal.fire('Error', error.message, 'error'); });
+  });
+
+  document.getElementById('adminLogoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => { window.location.href = 'index.html'; });
+  });
+
+  function showDashboard() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.body.classList.remove('items-center', 'justify-center');
+      document.getElementById('adminDashboard').classList.remove('hidden');
+      loadAdminContent();
+  }
+
+  async function loadAdminContent() {
+      const listDiv = document.getElementById('contentList');
+      listDiv.innerHTML = '<p class="text-gray-500">Loading contents...</p>';
+      const snap = await getDocs(collection(db, "content_items"));
+      allContent = [];
+      listDiv.innerHTML = '';
+      
+    snap.forEach(document => {
+        const item = { id: document.id, ...document.data() };
+        allContent.push(item);
+        listDiv.innerHTML += `
+          <div class="flex justify-between items-center bg-white/5 p-6 rounded-2xl border border-white/5 hover:border-white/10 transition group">
+              <div>
+                  <h4 class="font-bold text-white group-hover:text-primary transition-colors">${item.title}</h4>
+                  <p class="text-xs text-white/30 mt-1 cursor-pointer hover:text-white transition" onclick="navigator.clipboard.writeText('${item.id}')" title="Click to copy">ID: <span class="font-mono bg-white/5 px-2 py-0.5 rounded">${item.id}</span></p>
+              </div>
+              <div class="flex gap-3">
+                  <button onclick="editContent('${item.id}')" class="bg-violet-500/10 hover:bg-violet-500 text-violet-500 hover:text-white w-10 h-10 rounded-xl transition flex items-center justify-center"><i class="fa-solid fa-pen text-xs"></i></button>
+                  <button onclick="deleteContent('${item.id}')" class="bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white w-10 h-10 rounded-xl transition flex items-center justify-center"><i class="fa-solid fa-trash text-xs"></i></button>
+              </div>
+          </div>
+        `;
+    });
+  }
+
+  // --- Add/Edit/Delete Logic (Same as before but secured via rules) ---
+  document.getElementById('addContentBtn').addEventListener('click', async () => {
+      const title = document.getElementById('cTitle').value;
+      const desc = document.getElementById('cDesc').value;
+      const category = document.getElementById('cCategory').value;
+      const price = document.getElementById('cPrice').value;
+      const image = document.getElementById('cImage').value;
+      const link = document.getElementById('cLink').value;
+      const editId = document.getElementById('editDocId').value;
+
+      if(!title || !price || !link) return Swal.fire('Wait', 'Fill required fields', 'warning');
+
+      try {
+          Swal.fire({ title: 'Saving...', didOpen: () => Swal.showLoading() });
+          if(editId) {
+              await updateDoc(doc(db, "content_items", editId), { title, description: desc, category, price, image, link, resourceLink: link });
+              Swal.fire('Updated!', 'Content updated.', 'success');
+          } else {
+              await addDoc(collection(db, "content_items"), { title, description: desc, category, price, image, link, resourceLink: link, createdAt: serverTimestamp() });
+              Swal.fire('Added!', 'New content published.', 'success');
+          }
+          resetForm();
+          loadAdminContent();
+      } catch (e) { Swal.fire('Error', e.message, 'error'); }
+  });
+
+  window.editContent = (id) => {
+      const item = allContent.find(i => i.id === id);
+      if(item) {
+          document.getElementById('editDocId').value = item.id;
+          document.getElementById('cTitle').value = item.title || '';
+          document.getElementById('cDesc').value = item.description || '';
+          document.getElementById('cCategory').value = item.category || 'Programming';
+          document.getElementById('cPrice').value = item.price || '';
+          document.getElementById('cImage').value = item.image || '';
+          document.getElementById('cLink').value = item.link || '';
+          
+          document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-pen text-yellow-500 mr-2"></i>Edit Content';
+          document.getElementById('addContentBtn').innerText = 'Update Content';
+          document.getElementById('cancelEditBtn').classList.remove('hidden');
+          window.scrollTo(0, 0);
+      }
+  };
+
+  window.deleteContent = async (id) => {
+      const result = await Swal.fire({ title: 'Are you sure?', icon: 'warning', showCancelButton: true });
+      if (result.isConfirmed) {
+          try {
+              await deleteDoc(doc(db, "content_items", id));
+              Swal.fire('Deleted!', 'Content removed.', 'success');
+              loadAdminContent();
+          } catch(e) { Swal.fire('Error', e.message, 'error'); }
+      }
+  };
+
+  document.getElementById('generateCodeBtn').addEventListener('click', async () => {
+      const contentId = document.getElementById('rContentId').value;
+      if(!contentId) return Swal.fire('Wait', 'Enter Content ID', 'warning');
+      const code = "NEX-" + Math.random().toString(36).substr(2, 6).toUpperCase();
+      try {
+          Swal.fire({ title: 'Generating...', didOpen: () => Swal.showLoading() });
+          await addDoc(collection(db, "redeem_codes"), { code, contentId, createdAt: serverTimestamp(), status: "active" });
+          Swal.fire('Success', `Code Generated: <b>${code}</b>`, 'success');
+          document.getElementById('rContentId').value = '';
+      } catch (e) { Swal.fire('Error', e.message, 'error'); }
+  });
+
+  function resetForm() {
+      document.getElementById('editDocId').value = '';
+      document.querySelectorAll('#adminDashboard input:not(#cCategory), #adminDashboard textarea').forEach(el => el.value = '');
+      document.getElementById('cCategory').value = 'Programming';
+      document.getElementById('formTitle').innerHTML = '<i class="fa-solid fa-video text-blue-500 mr-2"></i>Publish New Content';
+      document.getElementById('addContentBtn').innerText = 'Save Content';
+      document.getElementById('cancelEditBtn').classList.add('hidden');
+  }
+</script>
+</body>
+</html>

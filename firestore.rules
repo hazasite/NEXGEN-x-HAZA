@@ -1,0 +1,99 @@
+rules_version = '2';
+
+// NexGen Academy - Optimized Firestore Security Rules
+// Designed by Antigravity AI
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    //           CORE HELPER FUNCTIONS
+    // ==========================================
+
+    // Returns true if the request is from an authenticated user
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Returns true if the authenticated user is the project Administrator
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'admin@gmail.com';
+    }
+
+    // Returns true if the user is accessing their own personal record
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Generic check for data validity on update
+    function isValidUpdate(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+
+    // ==========================================
+    //           COLLECTION-SPECIFIC RULES
+    // ==========================================
+
+    // 1. Content Items (Courses, Videos, Resources)
+    // ------------------------------------------
+    // Public: Read-only access to all learners
+    // Admin: Full management (Create, Update, Delete)
+    match /content_items/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 2. Specialized Collections (Tutorials, Courses, etc.)
+    // ------------------------------------------
+    // Often used if the catalog is split into multiple collections
+    match /tutorials/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /courses/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 3. Redeem / Access Codes
+    // ------------------------------------------
+    // Admin: Full control to generate and revoke codes
+    // User: Can find a code (read) and mark it as used (update)
+    match /redeem_codes/{docId} {
+      allow create, delete: if isAdmin();
+      allow read: if isSignedIn();
+      allow update: if isSignedIn() && (
+        isAdmin() || 
+        // Allow users to update 'status', 'redeemedBy', and 'redeemedAt'
+        isValidUpdate(['status', 'redeemedBy', 'redeemedAt'])
+      );
+    }
+
+    // 4. User Profiles & Progress
+    // ------------------------------------------
+    // Security: Only the owner can see or modify their learning history
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // 5. Custom / Dynamic Collections
+    // ------------------------------------------
+    // Catch-all for any custom collections added in the future
+    match /other/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+
+    // ==========================================
+    //           GLOBAL SECURITY FALLBACK
+    // ==========================================
+
+    // Default: Secure by default - Deny all access not explicitly granted above
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

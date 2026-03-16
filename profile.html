@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - NexGen Hub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22blue%22 font-family=%22Arial%22 font-weight=%22bold%22>N</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #020202; --primary: #8B5CF6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: white; }
+        .glass-card { background: rgba(10, 10, 10, 0.8); -webkit-backdrop-filter: blur(40px); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .btn-primary { background-color: var(--primary); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative overflow-hidden p-6">
+    <!-- Aurora background like index/login -->
+    <div class="absolute inset-0 z-[-1] flex justify-center items-center overflow-hidden">
+        <div class="absolute w-[80vw] h-[80vw] blur-[120px] opacity-20 rounded-full bg-[radial-gradient(circle,var(--primary)_0%,transparent_70%)] top-[-20%] left-[-10%]"></div>
+        <div class="absolute w-[80vw] h-[80vw] blur-[120px] opacity-20 rounded-full bg-[radial-gradient(circle,#06B6D4_0%,transparent_70%)] bottom-[-20%] right-[-10%]"></div>
+    </div>
+
+    <!-- Back to Dashboard -->
+    <a href="sessions.html" class="absolute top-8 left-8 text-white/50 hover:text-white transition flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-white/5 px-6 py-3 rounded-full border border-white/10 hover:bg-white/10 z-20">
+        <i class="fa-solid fa-arrow-left"></i> Dashboard
+    </a>
+
+    <!-- Profile Interface -->
+    <div class="glass-card rounded-[40px] max-w-4xl w-full p-10 border border-slate-800 relative z-10 shadow-2xl flex flex-col md:flex-row gap-12" data-aos="zoom-in">
+        
+        <!-- Left Column: Avatar & Stats -->
+        <div class="flex flex-col items-center md:w-1/3 border-b md:border-b-0 md:border-r border-white/10 pb-10 md:pb-0 md:pr-10">
+            <!-- Avatar Area -->
+            <div class="w-32 h-32 rounded-full bg-slate-800 border-4 border-primary flex items-center justify-center overflow-hidden relative group mb-6 shadow-[0_0_30px_rgba(139,92,246,0.2)]">
+                <i class="fa-solid fa-user text-5xl text-white/20" id="avatarIcon"></i>
+                <img id="profileImage" src="" alt="Profile Image" class="w-full h-full object-cover hidden">
+                <!-- Hover Edit Placeholder -->
+                <div class="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center cursor-pointer transition backdrop-blur-sm" onclick="changePFP()">
+                    <i class="fa-solid fa-camera text-2xl text-white"></i>
+                </div>
+            </div>
+            
+            <h4 class="text-2xl font-black text-white text-center tracking-tight mb-1" id="displayNameText">Loading...</h4>
+            <p class="text-primary text-xs font-bold uppercase tracking-widest mb-4 text-center" id="displayRoleText">NEXGEN MEMBER</p>
+            
+            <button onclick="changePFP()" class="mb-8 text-[10px] font-bold uppercase tracking-widest bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-full transition text-white/70 hover:text-white">
+                <i class="fa-solid fa-image mr-1"></i> Update Photo
+            </button>
+
+            <!-- Stats Grid -->
+            <div class="w-full grid grid-cols-2 gap-3">
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-white/10 transition">
+                    <span class="text-3xl font-black text-white" id="unlockedCount">-</span>
+                    <span class="text-[9px] uppercase font-bold text-white/40 tracking-widest mt-1 text-center">Projects<br>Unlocked</span>
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center hover:bg-white/10 transition">
+                    <span class="text-3xl font-black text-cyan-400" id="premiumCount">PRO</span>
+                    <span class="text-[9px] uppercase font-bold text-white/40 tracking-widest mt-1 text-center">Account<br>Status</span>
+                </div>
+            </div>
+            
+            <button id="logoutBtn" class="mt-auto pt-8 text-red-500/80 hover:text-red-400 text-xs font-bold uppercase tracking-widest transition flex items-center gap-2">
+                <i class="fa-solid fa-power-off"></i> Sign Out
+            </button>
+        </div>
+
+        <!-- Right Column: Edit Details -->
+        <div class="md:w-2/3 flex flex-col justify-center">
+            <h3 class="text-3xl font-black text-white tracking-tight mb-2">Profile Details</h3>
+            <p class="text-gray-400 text-sm mb-8">Customize your public presence in the NexGen Hub.</p>
+
+            <form id="profileForm" class="space-y-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-white/60 text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                        <input type="text" id="profileName" class="w-full px-5 py-4 bg-slate-900 border border-slate-700/50 rounded-xl text-white outline-none focus:border-primary transition" placeholder="Your Name" required />
+                    </div>
+                    <div>
+                        <label class="block text-white/60 text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Professional Role</label>
+                        <input type="text" id="profileRole" class="w-full px-5 py-4 bg-slate-900 border border-slate-700/50 rounded-xl text-white outline-none focus:border-cyan-400 transition" placeholder="e.g. UI/UX Designer" />
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-white/60 text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                    <div class="relative">
+                        <input type="email" id="profileEmail" class="w-full px-5 py-4 bg-black/40 border border-slate-800 rounded-xl text-white/30 outline-none cursor-not-allowed" placeholder="Email Address" disabled />
+                        <i class="fa-solid fa-lock absolute right-5 top-1/2 -translate-y-1/2 text-white/20"></i>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-white/60 text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Short Bio</label>
+                    <textarea id="profileBio" rows="3" class="w-full px-5 py-4 bg-slate-900 border border-slate-700/50 rounded-xl text-white outline-none focus:border-primary transition resize-none" placeholder="Tell us about your skills and goals..."></textarea>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="updateProfileBtn" class="bg-white text-black hover:bg-primary hover:text-white font-black uppercase tracking-widest px-8 py-4 rounded-xl shadow-[0_10px_30px_rgba(255,255,255,0.1)] transition hover:-translate-y-1 flex items-center justify-center gap-3 w-full md:w-auto">
+                        SAVE CHANGES <i class="fa-solid fa-check"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        // Firebase Setup
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeJeCETSpLC98UT2rHe4Wr-HJ3poVxi3Y",
+            authDomain: "nexgenlms-51425.firebaseapp.com",
+            projectId: "nexgenlms-51425"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Check auth status and fetch profile data
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // Populate Auth Data
+                document.getElementById('profileName').value = user.displayName || "";
+                document.getElementById('displayNameText').innerText = user.displayName || "Learner";
+                document.getElementById('profileEmail').value = user.email || "";
+                
+                if (user.photoURL) {
+                    document.getElementById('profileImage').src = user.photoURL;
+                    document.getElementById('profileImage').classList.remove('hidden');
+                    document.getElementById('avatarIcon').classList.add('hidden');
+                }
+
+                // Populate Firestore Data
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        
+                        // Set Role & Bio if available
+                        if(data.role) {
+                            document.getElementById('profileRole').value = data.role;
+                            document.getElementById('displayRoleText').innerText = data.role;
+                        }
+                        if(data.bio) {
+                            document.getElementById('profileBio').value = data.bio;
+                        }
+
+                        // Set Stats
+                        const unlocked = data.unlocked || [];
+                        document.getElementById('unlockedCount').innerText = unlocked.length;
+                    }
+                } catch(e) {
+                    console.error("Error fetching user doc:", e);
+                }
+
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Change Profile Photo
+        window.changePFP = async () => {
+            const { value: url } = await Swal.fire({
+                title: 'Update Avatar',
+                text: 'Paste a direct image URL to update your profile photo.',
+                input: 'url',
+                inputPlaceholder: 'https://example.com/my-photo.png',
+                background: 'rgba(15, 23, 42, 0.9)',
+                color: '#fff',
+                confirmButtonColor: '#8B5CF6',
+                customClass: { popup: 'border border-primary/30 rounded-[30px] backdrop-blur-xl' }
+            });
+
+            if (url) {
+                try {
+                    await updateProfile(auth.currentUser, { photoURL: url });
+                    document.getElementById('profileImage').src = url;
+                    document.getElementById('profileImage').classList.remove('hidden');
+                    document.getElementById('avatarIcon').classList.add('hidden');
+                    Swal.fire({
+                        icon: 'success', title: 'Avatar Updated!', background: 'rgba(15, 23, 42, 0.9)', color: '#fff', showConfirmButton: false, timer: 1500
+                    });
+                } catch (e) {
+                    Swal.fire({ icon: 'error', title: 'Failed', text: e.message, background: 'rgba(15, 23, 42, 0.9)', color: '#fff' });
+                }
+            }
+        };
+
+        // Update Profile function
+        document.getElementById('profileForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('updateProfileBtn');
+            const originalHTML = btn.innerHTML;
+            
+            const newName = document.getElementById('profileName').value;
+            const newRole = document.getElementById('profileRole').value;
+            const newBio = document.getElementById('profileBio').value;
+
+            try {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> SAVING...';
+                btn.classList.add('opacity-50', 'pointer-events-none');
+                
+                // Update Firebase Auth Auth Profile (Name)
+                await updateProfile(auth.currentUser, { displayName: newName });
+                
+                // Update Firestore User Doc (Role, Bio, Name)
+                await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                    name: newName,
+                    role: newRole,
+                    bio: newBio
+                });
+
+                // Update UI visually without reload
+                document.getElementById('displayNameText').innerText = newName;
+                document.getElementById('displayRoleText').innerText = newRole || "NEXGEN MEMBER";
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Profile Synced",
+                    text: "Your Hub profile has been updated.",
+                    background: 'rgba(15, 23, 42, 0.9)',
+                    backdrop: 'rgba(0,0,0, 0.7)',
+                    color: '#fff',
+                    customClass: { popup: 'border border-primary/30 rounded-[30px] backdrop-blur-xl' },
+                    confirmButtonColor: "#8B5CF6",
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+            } catch (error) {
+                Swal.fire({
+                    icon: "error", title: "Sync Failed", text: error.message,
+                    background: 'rgba(15, 23, 42, 0.9)', color: '#fff',
+                    confirmButtonColor: "#8B5CF6", customClass: { popup: 'border border-red-500/30 rounded-[30px] backdrop-blur-xl' }
+                });
+            } finally {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        };
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            const result = await Swal.fire({
+                title: 'Sign Out?',
+                text: "Are you sure you want to exit your dashboard?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: 'rgba(255,255,255,0.1)',
+                confirmButtonText: 'Yes, Sign Out',
+                cancelButtonText: 'Cancel',
+                background: 'rgba(15, 23, 42, 0.9)',
+                color: '#fff',
+                customClass: { popup: 'border border-red-500/30 rounded-[30px] backdrop-blur-xl' }
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    await signOut(auth);
+                    window.location.href = 'index.html'; 
+                } catch (error) {
+                    console.error("Logout Error:", error);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

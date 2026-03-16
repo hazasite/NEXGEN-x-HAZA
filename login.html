@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NexGen Hub</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22blue%22 font-family=%22Arial%22 font-weight=%22bold%22>N</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #020202; --primary: #8B5CF6; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: white; }
+        .glass-card { background: rgba(10, 10, 10, 0.8); -webkit-backdrop-filter: blur(40px); backdrop-filter: blur(40px); border: 1px solid rgba(255, 255, 255, 0.08); }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center relative overflow-hidden">
+    <!-- Aurora background like index -->
+    <div class="absolute inset-0 z-[-1] flex justify-center items-center overflow-hidden">
+        <div class="absolute w-[80vw] h-[80vw] blur-[120px] opacity-20 rounded-full bg-[radial-gradient(circle,var(--primary)_0%,transparent_70%)] top-[-20%] left-[-10%]"></div>
+        <div class="absolute w-[80vw] h-[80vw] blur-[120px] opacity-20 rounded-full bg-[radial-gradient(circle,#06B6D4_0%,transparent_70%)] bottom-[-20%] right-[-10%]"></div>
+    </div>
+
+    <!-- Back to Home -->
+    <a href="index.html" class="absolute top-8 left-8 text-white/50 hover:text-white transition flex items-center gap-2 text-xs font-bold uppercase tracking-widest bg-white/5 px-6 py-3 rounded-full border border-white/10 hover:bg-white/10 z-20">
+        <i class="fa-solid fa-arrow-left"></i> Home
+    </a>
+
+    <div class="glass-card rounded-3xl max-w-md w-full p-10 border border-slate-800 relative z-10 shadow-2xl">
+        <h3 id="authTitle" class="text-3xl font-black text-white mb-2 tracking-tight">NexGen Access</h3>
+        <p id="authSubtitle" class="text-gray-400 mb-8 text-sm">Login to your dashboard</p>
+        <form id="authForm" class="space-y-4">
+            <div id="nameField" class="hidden">
+                <input type="text" id="authName" class="w-full px-5 py-4 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-primary transition" placeholder="Full Name" />
+            </div>
+            <input type="email" id="authEmail" class="w-full px-5 py-4 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-primary transition" placeholder="Email Address" required />
+            <input type="password" id="authPassword" class="w-full px-5 py-4 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-primary transition" placeholder="Password" required />
+            <button type="submit" id="authSubmitBtn" class="w-full bg-primary hover:bg-violet-500 text-white font-black uppercase tracking-widest py-4 rounded-xl shadow-[0_10px_30px_rgba(139,92,246,0.3)] transition mt-4 hover:-translate-y-1">LOG IN</button>
+        </form>
+        <p class="mt-6 text-center text-sm text-gray-400">
+            <span id="authToggleText">Need an account?</span>
+            <button onclick="toggleAuthMode()" id="authToggleBtn" class="text-primary font-bold hover:underline transition">Sign Up</button>
+        </p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeJeCETSpLC98UT2rHe4Wr-HJ3poVxi3Y",
+            authDomain: "nexgenlms-51425.firebaseapp.com",
+            projectId: "nexgenlms-51425"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Redirect if already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                Swal.fire({
+                    title: 'Verifying Access...',
+                    allowOutsideClick: false,
+                    background: 'rgba(15, 23, 42, 0.6)',
+                    backdrop: 'rgba(0,0,0, 0.7)',
+                    color: '#fff',
+                    customClass: {
+                        popup: 'border border-white/10 rounded-3xl backdrop-blur-xl'
+                    },
+                    didOpen: () => Swal.showLoading()
+                });
+                setTimeout(() => {
+                    if (user.email === 'admin@gmail.com') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'sessions.html';
+                    }
+                }, 800);
+            }
+        });
+
+        let isLogin = true;
+        
+        window.toggleAuthMode = () => {
+            isLogin = !isLogin;
+            document.getElementById("authTitle").innerText = isLogin ? "NexGen Access" : "Create Account";
+            document.getElementById("authSubtitle").innerText = isLogin ? "Login to your dashboard" : "Join the ultimate learning experience";
+            document.getElementById("nameField").style.display = isLogin ? "none" : "block";
+            document.getElementById("authSubmitBtn").innerText = isLogin ? "LOG IN" : "SIGN UP";
+            document.getElementById("authToggleText").innerText = isLogin ? "Need an account?" : "Already have an account?";
+            document.getElementById("authToggleBtn").innerText = isLogin ? "Sign Up" : "Log In";
+            
+            // Require name only if signing up
+            document.getElementById("authName").required = !isLogin;
+        };
+
+        window.submitAuth = async (e) => {
+            e.preventDefault();
+        };
+
+        document.getElementById("authForm").onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("authEmail").value;
+            const pass = document.getElementById("authPassword").value;
+            const btn = document.getElementById("authSubmitBtn");
+            const originalText = btn.innerText;
+            
+            try {
+                btn.innerText = "PROCESSING...";
+                btn.classList.add('opacity-50', 'pointer-events-none');
+                
+                Swal.fire({
+                    title: 'Authenticating...',
+                    allowOutsideClick: false,
+                    background: 'rgba(15, 23, 42, 0.6)',
+                    backdrop: 'rgba(0,0,0, 0.7)',
+                    color: '#fff',
+                    customClass: {
+                        popup: 'border border-white/10 rounded-3xl backdrop-blur-xl'
+                    },
+                    didOpen: () => Swal.showLoading()
+                });
+                
+                if (isLogin) {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                } else {
+                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                    await updateProfile(cred.user, {
+                        displayName: document.getElementById("authName").value,
+                    });
+                    // Force refresh to handle state change reliably if needed
+                    window.location.href = 'sessions.html';
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Authentication Failed",
+                    text: error.message,
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    backdrop: 'rgba(0,0,0, 0.7)',
+                    color: '#fff',
+                    customClass: {
+                        popup: 'border border-red-500/30 rounded-3xl backdrop-blur-xl'
+                    },
+                    confirmButtonColor: "#8B5CF6"
+                });
+                btn.innerText = originalText;
+                btn.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        };
+    </script>
+</body>
+</html>

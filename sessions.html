@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NexGen Hub - The Ultimate Learning Experience</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22 fill=%22blue%22 font-family=%22Arial%22 font-weight=%22bold%22>N</text></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+    <style>
+
+      :root {
+        --bg: #020202;
+        --surface: rgba(255, 255, 255, 0.03);
+        --surface-light: rgba(255, 255, 255, 0.08);
+        --border: rgba(255, 255, 255, 0.08);
+        --primary: #8B5CF6;
+        --primary-glow: rgba(139, 92, 246, 0.3);
+        --secondary: #06B6D4;
+        --secondary-glow: rgba(6, 182, 212, 0.3);
+        --text: #FFFFFF;
+        --text-dim: #94A3B8;
+        --modal-overlay: rgba(0, 0, 0, 0.85);
+      }
+
+      * {
+        margin: 0; padding: 0; box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      /* Preloader */
+      #preloader {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+      }
+
+      .loader-circle {
+        width: 60px;
+        height: 60px;
+        border: 3px solid transparent;
+        border-top: 3px solid #ec4899;    /* Pink */
+        border-right: 3px solid #8B5CF6;  /* Purple */
+        border-radius: 50%;
+        animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        position: relative;
+      }
+
+      .loader-circle::after {
+        content: '';
+        position: absolute;
+        inset: -3px;
+        border: 3px solid transparent;
+        border-bottom: 3px solid #10b981; /* Green */
+        border-left: 3px solid #3b82f6;   /* Blue */
+        border-radius: 50%;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      /* Aurora Background */
+      .aurora-container {
+        position: fixed;
+        width: 100vw; height: 100vh;
+        top: 0; left: 0;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .aurora-blob {
+        position: absolute;
+        width: 80vw;
+        height: 80vw;
+        filter: blur(120px);
+        opacity: 0.25;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+        top: -20%;
+        left: -10%;
+        animation: morph 25s infinite alternate ease-in-out;
+      }
+
+      .aurora-blob.second {
+        background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+        bottom: -20%;
+        right: -10%;
+        top: auto;
+        left: auto;
+        animation: morph 20s infinite alternate-reverse ease-in-out;
+      }
+
+      @keyframes morph {
+        0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+        50% { transform: translate(15%, 5%) scale(1.1) rotate(60deg); }
+        100% { transform: translate(-5%, 15%) scale(0.9) rotate(-30deg); }
+      }
+
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.15); }
+
+      .glass-nav {
+        background: rgba(2, 2, 2, 0.4);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border-bottom: 1px solid var(--border);
+        transition: all 0.4s;
+      }
+
+      .nav-scrolled {
+        background: rgba(2, 2, 2, 0.8);
+        border-bottom-color: rgba(255, 255, 255, 0.15);
+        padding-top: 4px;
+        margin-bottom: clamp(24px, 5vw, 40px);
+      }
+
+      .eclipse-card {
+        border: 1px solid var(--border);
+        border-radius: 32px;
+        transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+      }
+
+      .eclipse-card:hover {
+        background: var(--surface-light);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.8), 
+                    0 0 40px -10px var(--primary-glow);
+      }
+
+
+      .hero-title {
+        font-size: clamp(3.5rem, 12vw, 8.5rem);
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        line-height: 0.85;
+        background: linear-gradient(to bottom, #fff 30%, rgba(255,255,255,0.3) 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: text-reveal 1.5s cubic-bezier(0.77, 0, 0.175, 1);
+      }
+
+      @keyframes text-reveal {
+        0% { opacity: 0; transform: translateY(50px); filter: blur(10px); }
+        100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+      }
+
+      .search-hub-container {
+        position: relative;
+        max-width: 600px;
+        margin: 0 auto;
+        transform: translateZ(0);
+      }
+
+      .search-hub {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 16px 20px 16px 56px;
+        width: 100%;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+      }
+
+      .search-hub:focus {
+        border-color: var(--primary);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 4px var(--primary-glow), 0 20px 40px -10px rgba(0,0,0,0.5);
+        outline: none;
+        transform: scale(1.02);
+      }
+
+      .btn-primary {
+        background: #fff;
+        color: #000;
+        padding: clamp(16px, 2vw, 22px) clamp(30px, 4vw, 50px);
+        border-radius: 100px;
+        font-weight: 800;
+        font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-primary:hover {
+        transform: scale(1.1) translateY(-3px);
+        box-shadow: 0 20px 50px rgba(255, 255, 255, 0.2);
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .category-pill {
+        padding: 8px 16px;
+        border-radius: 100px;
+        border: 1px solid var(--border);
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: var(--text-dim);
+        transition: all 0.4s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        background: var(--surface);
+        cursor: pointer;
+      }
+
+      .category-pill:hover, .category-pill.active {
+        background: #fff;
+        color: #000;
+        border-color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .card-image-wrap {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        border-radius: 20px;
+        margin: 16px;
+      }
+
+      .card-tag {
+        position: absolute;
+        top: 16px; left: 16px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(12px);
+        padding: 8px 16px;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 800;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        letter-spacing: 1px;
+        z-index: 10;
+      }
+
+      .glass-card {
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
+        border: 1px solid var(--border);
+      }
+
+      .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .reveal-on-scroll.active {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 768px) {
+        .hero-title { font-size: clamp(2.2rem, 12vw, 3.5rem); }
+      }
+
+    </style>
+  </head>
+  <body class="selection:bg-primary selection:text-white">
+    <!-- Preloader -->
+    <div id="preloader">
+      <div class="loader-circle"></div>
+    </div>
+
+    <div class="aurora-container">
+      <div class="aurora-blob"></div>
+      <div class="aurora-blob second"></div>
+    </div>
+    
+    <nav class="glass-nav fixed w-full z-[100] top-0">
+      <div class="max-w-[1400px] mx-auto px-8">
+        <div class="flex justify-between h-24 items-center">
+          <div class="flex flex-col cursor-pointer select-none" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <div class="font-black text-2xl tracking-tighter uppercase leading-none">
+              NexGen<span class="opacity-40">Hub</span>
+            </div>
+            <div class="text-[9px] opacity-40 tracking-widest font-extrabold translate-x-1 mt-1">
+              x HAZA
+            </div>
+          </div>
+          
+          <div id="authSection" class="flex items-center gap-8">
+              <a href="index.html" class="bg-white/10 text-white border border-white/20 px-8 py-3.5 rounded-full font-black text-xs hover:bg-white/20 hover:scale-105 transition active:scale-95 flex items-center gap-2">
+                <i class="fa-solid fa-house mb-0.5"></i> BACK TO HOME
+              </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+
+
+    <div id="contentSection" class="max-w-[1400px] mx-auto px-8 py-40">
+      <div class="mb-32 space-y-20" data-aos="fade-up">
+        <div class="relative max-w-4xl mx-auto">
+          <i class="fa-solid fa-magnifying-glass absolute left-10 top-1/2 -translate-y-1/2 text-white/20 text-2xl"></i>
+          <input
+            type="text"
+            id="searchInput"
+            class="search-hub"
+            placeholder="Search the repository..."
+            oninput="handleSearch()"
+          />
+        </div>
+        
+        <div class="flex flex-wrap gap-3 justify-center">
+          <button class="category-pill active" onclick="filterContent('All', this)">
+            <i data-lucide="layers-3" class="inline-block w-4 h-4 mr-2 align-text-bottom"></i>ALL SYSTEMS
+          </button>
+          <button class="category-pill" id="myLearningBtn" style="display: none" onclick="filterContent('MyLearning', this)">
+            <i data-lucide="vault" class="inline-block w-4 h-4 mr-2 align-text-bottom"></i>PERSONAL VAULT
+          </button>
+          <button class="category-pill" onclick="filterContent('Programming', this)">
+            <i data-lucide="code-2" class="inline-block w-4 h-4 mr-2 align-text-bottom"></i>DEVELOPMENT
+          </button>
+          <button class="category-pill" onclick="filterContent('Graphics', this)">
+            <i data-lucide="palette" class="inline-block w-4 h-4 mr-2 align-text-bottom"></i>DESIGN
+          </button>
+          <button class="category-pill" onclick="filterContent('AI', this)">
+            <i data-lucide="cpu" class="inline-block w-4 h-4 mr-2 align-text-bottom"></i>INTELLIGENCE
+          </button>
+          <button class="category-pill" onclick="filterContent('Assets', this)">
+            <i data-lucide="package" class="inline-block w-4 h-4 mr-2 align-text-bottom"></i>ASSETS
+          </button>
+          <button class="category-pill" onclick="filterContent('Courses', this)">
+            <i data-lucide="graduation-cap" class="inline-block w-4 h-4 mr-2 align-text-bottom"></i>ACADEMY
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10" id="contentGrid"></div>
+    </div>
+
+    <footer class="bg-slate-950 border-t border-slate-900 py-10 mt-20">
+      <div class="text-center text-gray-600 text-sm">
+        © 2026 NexGen Solutions. All Rights Reserved.
+      </div>
+    </footer>
+
+    <div
+      id="courseModal"
+      class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl transition-all"
+      style="background: var(--modal-overlay);"
+    >
+      <div
+        class="glass-card rounded-[40px] max-w-3xl w-full overflow-hidden relative shadow-2xl border border-slate-700"
+      >
+        <button
+          onclick="closeModal()"
+          class="absolute top-6 right-6 hover:bg-red-500 rounded-full w-10 h-10 flex items-center justify-center z-10 transition"
+          style="background: var(--btn-secondary); color: var(--text-main);"
+        >
+          <i class="fa-solid fa-times"></i>
+        </button>
+        <div class="flex flex-col md:flex-row h-full">
+          <div class="md:w-1/2 h-64 md:h-auto">
+            <img
+              id="modalImg"
+              class="w-full h-full object-cover"
+              src=""
+              onerror="
+                this.onerror = null;
+                this.src =
+                  'https://placehold.co/600x400/0f172a/3b82f6?text=NexGen+Hub';
+              "
+            />
+          </div>
+          <div class="md:w-1/2 p-10 flex flex-col justify-center">
+            <span
+              id="modalBadge"
+              class="text-[10px] font-black px-3 py-1 rounded-full mb-4 inline-block uppercase tracking-widest border"
+            ></span>
+            <h3
+              id="modalTitle"
+              class="text-3xl font-bold text-white mb-4 leading-tight"
+            ></h3>
+            <p
+              id="modalDesc"
+              class="text-slate-400 text-sm leading-relaxed mb-8"
+            ></p>
+            <div id="modalActionArea"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="authModal"
+      class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 backdrop-blur-md"
+      style="background: var(--modal-overlay);"
+    >
+      <div
+        class="glass-card rounded-3xl max-w-md w-full p-10 border border-slate-800"
+      >
+        <button
+          onclick="closeAuthModal()"
+          class="float-right text-gray-500 hover:text-white"
+        >
+          <i class="fa-solid fa-times text-xl"></i>
+        </button>
+        <h3 id="authTitle" class="text-3xl font-black text-white mb-2">
+          NexGen Access
+        </h3>
+        <p id="authSubtitle" class="text-gray-500 mb-8">
+          Login to your dashboard
+        </p>
+        <form id="authForm" class="space-y-4">
+          <div id="nameField" class="hidden">
+            <input
+              type="text"
+              id="authName"
+              class="w-full px-5 py-4 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+              placeholder="Full Name"
+            />
+          </div>
+          <input
+            type="email"
+            id="authEmail"
+            class="w-full px-5 py-4 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+            placeholder="Email Address"
+            required
+          />
+          <input
+            type="password"
+            id="authPassword"
+            class="w-full px-5 py-4 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+            placeholder="Password"
+            required
+          />
+          <button
+            type="submit"
+            id="authSubmitBtn"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition mt-4"
+          >
+            LOG IN
+          </button>
+        </form>
+        <p class="mt-6 text-center text-sm text-gray-500">
+          <span id="authToggleText">Need an account?</span>
+          <button
+            onclick="toggleAuthMode()"
+            id="authToggleBtn"
+            class="text-primary font-bold hover:underline"
+          >
+            Sign Up
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script type="module">
+      // Preloader cleanup
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('preloader');
+        loader.style.opacity = '0';
+        setTimeout(() => {
+          loader.style.visibility = 'hidden';
+        }, 800);
+      });
+
+      // Navbar scroll effect
+      window.addEventListener('scroll', () => {
+        const nav = document.querySelector('.glass-nav');
+        if (window.scrollY > 50) {
+          nav.classList.add('nav-scrolled');
+        } else {
+          nav.classList.remove('nav-scrolled');
+        }
+      });
+
+      AOS.init({ 
+        duration: 1000, 
+        once: true,
+        easing: 'ease-out-cubic'
+      });
+      lucide.createIcons();
+
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        updateProfile,
+        onAuthStateChanged,
+        signOut,
+        setPersistence,
+        browserLocalPersistence,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+        setDoc,
+        updateDoc,
+        arrayUnion,
+        query,
+        where,
+        serverTimestamp,
+      } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCeJeCETSpLC98UT2rHe4Wr-HJ3poVxi3Y",
+        authDomain: "nexgenlms-51425.firebaseapp.com",
+        projectId: "nexgenlms-51425",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let currentUser = null;
+      let unlockedItems = [];
+      let allContent = [];
+      let currentFilter = "All";
+      let searchQuery = "";
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUser = user;
+          document.getElementById("myLearningBtn").style.display = "inline-block";
+          document.getElementById("authSection").innerHTML = `
+                <div class="flex items-center gap-6 bg-white/5 pl-2 pr-6 py-2 rounded-full border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center font-black text-black overflow-hidden border border-white/10">
+                        ${user.photoURL ? `<img src="${user.photoURL}" class="w-full h-full object-cover">` : (user.displayName ? user.displayName.charAt(0) : "U")}
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-[10px] font-black uppercase tracking-tight">${user.displayName || "Learner"}</span>
+                        <span class="text-[8px] font-bold text-white/40 uppercase tracking-widest">PRO ACCESS</span>
+                    </div>
+                    <a href="profile.html" class="text-white/30 hover:text-white transition" title="Edit Profile"><i class="fa-solid fa-pencil text-xs"></i></a>
+                    <button id="logoutBtn" class="text-white/20 hover:text-white transition ml-2"><i class="fa-solid fa-power-off"></i></button>
+                    <a href="index.html" class="ml-4 text-white/40 hover:text-white transition text-xs font-bold uppercase tracking-widest flex items-center gap-2 border-l border-white/10 pl-4">
+                        <i class="fa-solid fa-house"></i> Home
+                    </a>
+                </div>`;
+          document.getElementById("logoutBtn").onclick = () =>
+            signOut(auth).then(() => location.href = "index.html");
+          await fetchUnlocked();
+        } else {
+             location.href = "login.html"; // Require login to access sessions? The user said "login unama sessions.html ekata yanawa", implying it's a logged-in page. Let's redirect unauthorized to index or login.
+        }
+        await loadLibrary();
+      });
+
+      async function fetchUnlocked() {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) unlockedItems = snap.data().unlocked || [];
+        else
+          await setDoc(doc(db, "users", currentUser.uid), {
+            unlocked: [],
+            email: currentUser.email,
+            name: currentUser.displayName || "User",
+          });
+      }
+
+      async function loadLibrary() {
+        const grid = document.getElementById("contentGrid");
+        grid.innerHTML = `
+            <div class="col-span-full py-20 flex flex-col items-center justify-center">
+                <div class="relative w-12 h-12 animate-spin mb-4">
+                    <div class="absolute inset-0 border-4 border-transparent border-t-[#ec4899] border-r-[#8B5CF6] rounded-full"></div>
+                    <div class="absolute inset-0 border-4 border-transparent border-b-[#10b981] border-l-[#3b82f6] rounded-full"></div>
+                </div>
+                <p class="text-white/40 font-bold uppercase tracking-widest text-xs">Loading Repository...</p>
+            </div>`;
+        try {
+            const snap = await getDocs(collection(db, "content_items"));
+            allContent = [];
+            snap.forEach((d) => allContent.push({ id: d.id, ...d.data() }));
+            
+            // Sort by uploaded date (newest first)
+            allContent.sort((a, b) => {
+                const dateA = a.createdAt ? (a.createdAt.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime()) : 0;
+                const dateB = b.createdAt ? (b.createdAt.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime()) : 0;
+                return dateB - dateA;
+            });
+
+            renderGrid();
+        } catch (error) {
+            console.error("Error loading library:", error);
+            grid.innerHTML = '<div class="col-span-full text-center text-red-500 py-20 font-bold uppercase tracking-widest text-xs">Failed to load content.</div>';
+        }
+      }
+
+      window.handleSearch = () => {
+        searchQuery = document.getElementById("searchInput").value.toLowerCase();
+        renderGrid();
+      };
+
+      window.filterContent = (cat, btn) => {
+        document.querySelectorAll(".category-pill").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = cat;
+        renderGrid();
+      };
+
+      function renderGrid() {
+        const grid = document.getElementById("contentGrid");
+        grid.innerHTML = "";
+
+        let filtered = allContent.filter((item) => {
+          const searchTitle = item.title ? item.title.toLowerCase() : "";
+          const matchesSearch = searchTitle.includes(searchQuery);
+          const matchesCat = currentFilter === "All" || (currentFilter === "MyLearning" && unlockedItems.includes(item.id)) || (item.category && item.category.toLowerCase().includes(currentFilter.toLowerCase()));
+          return matchesSearch && matchesCat;
+        });
+
+        if (filtered.length === 0) {
+          grid.innerHTML = '<div class="col-span-full text-center text-white/20 py-40 font-black tracking-widest uppercase">END OF REPOSITORY.</div>';
+          return;
+        }
+
+        filtered.forEach((item, i) => {
+          const isUnlocked = unlockedItems.includes(item.id);
+          const defaultImg = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop";
+          const imgUrl = item.image ? item.image : defaultImg;
+          const isAsset = item.category && item.category.toLowerCase().includes('asset');
+
+          const cardTitle = item.title || "Untitled Component";
+          const cardPrice = item.price || "Free";
+
+          const card = `
+                <div data-aos="fade-up" data-aos-delay="${i * 50}" 
+                     class="eclipse-card group flex flex-col cursor-pointer h-full" 
+                     onclick="openModal('${item.id}')">
+                    <div class="card-image-wrap">
+                        <img src="${imgUrl}" onerror="this.onerror=null;this.src='${defaultImg}'" 
+                             class="w-full h-full object-cover group-hover:scale-110 transition duration-1000">
+                        ${isUnlocked ? `
+                            <div class="card-tag !bg-white !text-black border-none shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                                <i class="fa-solid fa-unlock mr-1"></i> UNLOCKED
+                            </div>
+                        ` : `
+                            <div class="card-tag">
+                                <i class="fa-solid fa-lock text-white/40 mr-1"></i> ${isAsset ? 'ASSET' : 'SECURE'}
+                            </div>
+                        `}
+                    </div>
+                    <div class="px-8 pb-10 flex flex-col flex-grow">
+                        <span class="text-[10px] font-black text-white/30 tracking-[0.3em] uppercase mb-4 flex items-center gap-2">
+                           <span class="w-2 h-2 rounded-full bg-primary-glow"></span> ${item.category || "UNIT"}
+                        </span>
+                        <h4 class="text-2xl font-bold text-white mb-8 leading-tight tracking-tight group-hover:text-primary transition-colors">${cardTitle}</h4>
+                        <div class="mt-auto flex items-center justify-between">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] text-white/40 font-bold uppercase tracking-widest mb-1">Price</span>
+                                <span class="text-sm font-black tracking-widest text-white/90">
+                                    ${cardPrice.toUpperCase() === 'FREE' ? '<span class="text-cyan-400">COMPLIMENTARY</span>' : 'LKR ' + cardPrice}
+                                </span>
+                            </div>
+                            <div class="w-12 h-12 border border-white/10 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all duration-500 shadow-xl">
+                                <i class="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+          grid.innerHTML += card;
+        });
+      }
+
+      window.openModal = function (id) {
+        const item = allContent.find((i) => i.id === id);
+        if (!item) return;
+        const defaultImg =
+          "https://placehold.co/600x400/0f172a/3b82f6?text=NexGen+Hub";
+        document.getElementById("modalImg").src = item.image || defaultImg;
+        document.getElementById("modalTitle").innerText = item.title;
+        document.getElementById("modalDesc").innerText =
+          item.description || "Premium resource from NexGen Hub.";
+
+        const badge = document.getElementById("modalBadge");
+        const isFree = item.price.toLowerCase() === "free";
+        badge.className = isFree
+          ? "bg-green-500/10 text-green-400 border-green-500/30"
+          : "bg-blue-500/10 text-blue-400 border-blue-500/30";
+        badge.innerText = isFree ? "FREE ACCESS" : "PREMIUM COURSE";
+
+        const area = document.getElementById("modalActionArea");
+        if (!currentUser) {
+          area.innerHTML = `<button onclick="window.location.href='login.html'" class="w-full bg-primary hover:bg-violet-500 py-3 rounded-2xl font-bold text-white transition shadow-lg">LOGIN TO ACCESS</button>`;
+        } else {
+          const unlocked = unlockedItems.includes(item.id);
+          const isAsset = item.category && item.category.toLowerCase().includes('asset');
+          
+          if (unlocked) {
+            area.innerHTML = `<button onclick="window.open('${item.link}', '_blank')" class="w-full ${isAsset ? 'bg-cyan-600 hover:bg-cyan-500' : 'bg-green-600 hover:bg-green-500'} py-3 rounded-2xl font-bold text-white transition shadow-lg">
+                <i class="fa-solid ${isAsset ? 'fa-download' : 'fa-circle-play'} mr-2"></i>
+                ${isAsset ? 'GET IT NOW' : 'START LEARNING'}
+            </button>`;
+          } else if (isFree) {
+            area.innerHTML = `<button onclick="unlockFree('${item.id}')" class="w-full bg-primary hover:bg-violet-500 py-3 rounded-2xl font-bold text-white transition shadow-lg">UNLOCK FOR FREE</button>`;
+          } else {
+            area.innerHTML = `
+                <div class="flex flex-col gap-4">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Premium Resource</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="mCode" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 text-white font-mono uppercase tracking-widest focus:border-primary outline-none transition" placeholder="NEX-XXXX">
+                        <button onclick="redeemCode('${item.id}')" class="bg-primary hover:bg-violet-500 px-6 rounded-xl font-bold transition shadow-lg text-[10px] tracking-widest">REDEEM</button>
+                    </div>
+                </div>`;
+          }
+        }
+        document.getElementById("courseModal").classList.remove("hidden");
+      };
+
+      window.closeModal = () =>
+        document.getElementById("courseModal").classList.add("hidden");
+
+      window.unlockFree = async (id) => {
+        Swal.fire({
+          title: "Unlocking...",
+          background: "#0f172a",
+          color: "#fff",
+          didOpen: () => Swal.showLoading(),
+        });
+        try {
+          await updateDoc(doc(db, "users", currentUser.uid), {
+            unlocked: arrayUnion(id),
+          });
+          unlockedItems.push(id);
+          Swal.fire({
+            icon: "success",
+            title: "Success!",
+            background: "#0f172a",
+            color: "#fff",
+          });
+          openModal(id);
+          renderGrid();
+        } catch (e) {
+          Swal.fire("Error", e.message, "error");
+        }
+      };
+
+      window.redeemCode = async (id) => {
+        const code = document
+          .getElementById("mCode")
+          .value.trim()
+          .toUpperCase();
+        if (!code) return;
+        const q = query(
+          collection(db, "redeem_codes"),
+          where("code", "==", code),
+          where("status", "==", "active"),
+          where("contentId", "==", id),
+        );
+        const snap = await getDocs(q);
+        if (snap.empty)
+          return Swal.fire({
+            icon: "error",
+            title: "Invalid Code",
+            background: "#0f172a",
+            color: "#fff",
+          });
+
+        await updateDoc(doc(db, "redeem_codes", snap.docs[0].id), {
+          status: "redeemed",
+          redeemedBy: currentUser.email,
+          redeemedAt: serverTimestamp(),
+        });
+        await updateDoc(doc(db, "users", currentUser.uid), {
+          unlocked: arrayUnion(id),
+        });
+        unlockedItems.push(id);
+        Swal.fire({
+          icon: "success",
+          title: "Course Unlocked!",
+          background: "#0f172a",
+          color: "#fff",
+        });
+        openModal(id);
+        renderGrid();
+      };
+
+      // Auth Modal handles removed as they are moved to login.html
+    </script>
+  </body>
+</html>
